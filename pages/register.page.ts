@@ -1,4 +1,4 @@
-import {Page, Locator} from '@playwright/test';
+import {Page, Locator, expect} from '@playwright/test';
 
 class RegisterPage {
     page: Page;
@@ -25,6 +25,7 @@ class RegisterPage {
     continueButton: Locator;
     logoutLink: Locator;
     heading: Locator;
+    alreadyRegistered: Locator;
     constructor(page: Page) {
         this.page = page;
         this.heading = page.getByRole('heading', { name: 'New User Signup!' })
@@ -49,6 +50,7 @@ class RegisterPage {
         this.accountCreated = page.getByText('Account Created!')
         this.continueButton = page.getByRole('link', { name: 'Continue' })
         this.logoutLink = page.getByRole('link', { name: ' Logout' })
+        this.alreadyRegistered = page.locator('form').filter({hasText: 'Login'}).getByText('Email Address already exist!')
     }
 
     async userSignup(fullName: string, emailAddress: string) {
@@ -60,6 +62,18 @@ class RegisterPage {
             console.log('Account Information is visible');
         } else {
             console.log('Account Information is not visible');
+        }
+    }
+
+    async existingUserSignup(fullName: string, emailAddress: string) {
+        await this.fullName.fill(fullName);
+        await this.emailAddress.fill(emailAddress);
+        await this.signupButton.click();
+        const alreadyRegistered = this.alreadyRegistered
+        if (await alreadyRegistered.isVisible()) {
+            console.log('Email Address already exists!');
+        } else {
+            console.log('Email Address does not exist');
         }
     }
 

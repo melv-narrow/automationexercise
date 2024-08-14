@@ -63,4 +63,30 @@ test.describe('User Tests', () => {
             await expect(page.locator('form').filter({hasText: 'Login'}).getByText('Your email or password is incorrect!')).toBeVisible();
         });
     });
+
+    test ('Logout User', async ({ page }) => {
+        // await page.waitForTimeout(10000);
+        const user = getUserDetails();
+
+        await allure.step('Fill in email address and password then login', async () => {
+            await loginPage.emailAddress.fill(user.email);
+            await loginPage.password.fill(user.password);
+            await loginPage.loginButton.click();
+        });
+        await allure.step('Verify user is logged in', async () => {
+            await expect(registerPage.logoutLink).toBeVisible();
+        });
+        await allure.step('Logout the user', async () => {
+            await registerPage.logoutLink.click();
+            await expect(registerPage.heading).toBeVisible();
+        });
+    });
+
+    test ('Register User with existing email', async ({ page }) => {
+        const user = getUserDetails();
+
+        await allure.step('Fill in the user details', async () => {
+            await registerPage.existingUserSignup(user.name, user.email);
+        });
+    });
 });

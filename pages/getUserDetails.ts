@@ -12,6 +12,7 @@ export function getUserDetails() {
 
     return {
         email: envVariables['EMAIL'],
-        password: envVariables['PASSWORD']
+        password: envVariables['PASSWORD'],
+        name: envVariables['NAME']
     };
 }
