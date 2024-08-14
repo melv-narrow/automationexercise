@@ -65,7 +65,7 @@ test.describe('User Tests', () => {
     });
 
     test ('Logout User', async ({ page }) => {
-        // await page.waitForTimeout(10000);
+        await page.waitForTimeout(10000);
         const user = getUserDetails();
 
         await allure.step('Fill in email address and password then login', async () => {
