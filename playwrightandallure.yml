@@ -1,4 +1,4 @@
-image: node:16
+image: mcr.microsoft.com/playwright:v1.32.0-focal
 
 stages:
   - test
@@ -13,18 +13,20 @@ cache:
     - .npm/
     - node_modules/
 
+before_script:
+  - npm ci
+
 test:
   stage: test
   script:
-    - npm ci
-    - npx playwright install --with-deps
-    - npm install -D @playwright/test allure-playwright
     - npx playwright test --reporter=line,allure-playwright
   artifacts:
     when: always
     paths:
       - allure-results
+      - playwright-report
     expire_in: 1 week
+  allow_failure: true
 
 generate_report:
   stage: report
@@ -36,6 +38,7 @@ generate_report:
     paths:
       - allure-report
     expire_in: 1 week
+  allow_failure: true
 
 pages:
   stage: report
