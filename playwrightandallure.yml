@@ -37,14 +37,20 @@ generate_report:
     when: always
     paths:
       - allure-report
-    expire_in: 1 week
+    expire_in: 4 weeks
   allow_failure: true
 
 pages:
   stage: report
   needs: ['generate_report']
   script:
-    - mv allure-report public
+    - ls -la
+    - if [ -d "allure-report" ]; then
+        mv allure-report public;
+      else
+        echo "allure-report directory not found. Check previous job logs.";
+        exit 1;
+      f
   artifacts:
     paths:
       - public
