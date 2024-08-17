@@ -34,6 +34,7 @@ generate_report:
   stage: report
   image: frankescobar/allure-docker-service
   script:
+    - npm install -g allure-commandline
     - allure generate allure-results -o allure-report --clean
   artifacts:
     when: always
