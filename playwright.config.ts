@@ -70,7 +70,6 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'],
       headless: true },
     },
-    //
     {
       name: 'Webkit',
       use: { ...devices['Desktop Safari'],

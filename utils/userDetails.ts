@@ -5,6 +5,7 @@ export function userDetails() {
     const email = faker.internet.email();
     const password = faker.internet.password();
     const name = faker.person.firstName();
-    const envContent = `EMAIL=${email}\nPASSWORD=${password}\nNAME=${name}`;
+    const streetAddress = faker.location.streetAddress();
+    const envContent = `EMAIL=${email}\nPASSWORD=${password}\nNAME=${name}\nSTREET_ADDRESS=${streetAddress}`;
     fs.writeFileSync('.env', envContent);
 }
