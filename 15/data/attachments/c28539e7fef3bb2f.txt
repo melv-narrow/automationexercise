@@ -1,0 +1,4 @@
+api info => browser.newContext started
+api info <= browser.newContext succeeded
+api info => browserContext.newPage started
+api info <= browserContext.newPage succeeded
