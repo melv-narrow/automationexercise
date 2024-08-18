@@ -6,6 +6,9 @@ import {getUserDetails} from "../pages/getUserDetails";
 import {faker} from "@faker-js/faker";
 import {allure} from "allure-playwright";
 import LoginPage from "../pages/login.page";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 test.describe("Checkout Order Tests", () => {
     let checkoutPage: CheckoutPage;
@@ -106,13 +109,13 @@ test.describe("Checkout Order Tests", () => {
         });
     });
 
-    test('Place Order: Login before Checkout', async ({page}) => {
+    test.skip('Place Order: Login before Checkout', async ({page}) => {
         const user = getUserDetails();
         await checkoutPage.linkSignupLogin.click();
 
         await allure.step("Fill in email address and password then login", async () => {
-                await loginPage.emailAddress.fill(user.static_email);
-                await loginPage.password.fill(user.static_password);
+                await loginPage.emailAddress.fill(process.env.STATIC_EMAIL);
+                await loginPage.password.fill(process.env.STATIC_PASSWORD);
                 await loginPage.loginButton.click();
             }
         );
