@@ -1,6 +1,4 @@
 import {expect, Locator, Page} from "@playwright/test";
-import assert from "node:assert";
-import {userDetails} from "../utils/userDetails";
 import {getUserDetails} from "./getUserDetails";
 import {faker} from "@faker-js/faker";
 
@@ -33,7 +31,6 @@ class CheckoutPage {
     linkSignupLogin: Locator;
 
     constructor(page: Page) {
-        const user = getUserDetails();
         this.page = page;
         this.productOne = page.locator('html > body > section:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(8) > div > div:nth-of-type(1) > div:nth-of-type(1) > a')
         this.productTwo = page.locator('html > body > section:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(7) > div > div:nth-of-type(1) > div:nth-of-type(1) > a')
@@ -65,7 +62,6 @@ class CheckoutPage {
 
     async navigate(){
         await this.page.goto('/')
-        await this.page.waitForLoadState('networkidle')
         await expect(this.page).toHaveURL('/')
     }
 
