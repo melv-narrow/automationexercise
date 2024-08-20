@@ -1,0 +1,51 @@
+[
+  {
+    "email": "Alfonzo_Mosciski89@hotmail.com",
+    "password": "4rgqZ0aVBbjFeus",
+    "name": "Horace Schmidt PhD",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Jacky75@yahoo.com",
+    "password": "tat9mlTpG_9mIoA",
+    "name": "Courtney Jones",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Meghan.Hand67@yahoo.com",
+    "password": "KaAVejhWlhrzN9A",
+    "name": "Annie Hoppe-Keeling",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Alessandro.Denesik@hotmail.com",
+    "password": "LmxhwK5wP7H3kiN",
+    "name": "Jesus Okuneva",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Emmie_Haag@hotmail.com",
+    "password": "qJmJOvXLXbp7Yuf",
+    "name": "Billy Berge",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Kim.Dickinson15@hotmail.com",
+    "password": "fhkBUNTbDlnUrX9",
+    "name": "Ramon Welch",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Lucius76@yahoo.com",
+    "password": "OVxSXjk1zaPf4kN",
+    "name": "Ms. Grace Conroy",
+    "isAvailable": true,
+    "isRegistered": true
+  }
+]

@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 import CheckoutPage from "../pages/checkout.page";
 import RegisterPage from "../pages/register.page";
-import {userDetails} from "../utils/userDetails";
+import {getPoolUser, releasePoolUser, userDetails} from "../utils/userDetails";
 import {getUserDetails} from "../pages/getUserDetails";
 import {faker} from "@faker-js/faker";
 import {allure} from "allure-playwright";
 import LoginPage from "../pages/login.page";
 import dotenv from "dotenv";
+import { userPool } from '../utils/userPool';
 dotenv.config();
 
 
@@ -20,6 +21,7 @@ test.describe("Checkout Order Tests", () => {
         registerPage = new RegisterPage(page);
         loginPage = new LoginPage(page);
         await checkoutPage.navigate();
+        userPool.ensureMinimumUsers(5);
     });
 
     test('Place Order: Register while Checkout', async ({page}) => {
@@ -109,16 +111,12 @@ test.describe("Checkout Order Tests", () => {
         });
     });
 
-    test.skip('Place Order: Login before Checkout', async ({page}) => {
-        const user = getUserDetails();
-        await checkoutPage.linkSignupLogin.click();
+    test('Place Order: Login before Checkout', async ({page}) => {
+        const user = await getPoolUser(page);
+        
+        // Navigate directly to the login page
+        await page.goto('/login');
 
-        await allure.step("Fill in email address and password then login", async () => {
-                await loginPage.emailAddress.fill(process.env.STATIC_EMAIL);
-                await loginPage.password.fill(process.env.STATIC_PASSWORD);
-                await loginPage.loginButton.click();
-            }
-        );
         await allure.step("Verify user is logged in", async () => {
             await expect(registerPage.logoutLink).toBeVisible();
         });
@@ -132,7 +130,7 @@ test.describe("Checkout Order Tests", () => {
         });
         await allure.step("Fill in payment details and delete user account", async () => {
             await checkoutPage.fillPaymentDetails();
-            await checkoutPage.deleteUserAccount();
+            releasePoolUser(user.email);
         });
     });
 
