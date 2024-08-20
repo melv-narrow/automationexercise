@@ -4,6 +4,9 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  on:
+  schedule:
+    - cron:  '30 0,12 * * *'
 jobs:
   test:
     timeout-minutes: 60
