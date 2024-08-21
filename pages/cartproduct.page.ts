@@ -21,6 +21,7 @@ class CartproductPage {
     addCart: Locator;
     confirmItem: Locator;
     emptyCart: Locator;
+    winterTop: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -42,6 +43,8 @@ class CartproductPage {
         this.addCart = page.locator("button[class$='cart']")
         this.confirmItem = page.locator('#cart_info')
         this.emptyCart = page.locator('#empty_cart')
+        this.winterTop = page.getByText('Add to cart').first()
+        // this.winterTop = page.locator('div:nth-child(7) > .product-image-wrapper > .single-products > .product-overlay > .overlay-content > .btn')
     }
     
     async addProductToCart() {

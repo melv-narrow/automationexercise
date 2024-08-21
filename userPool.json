@@ -45,7 +45,28 @@
     "email": "Lucius76@yahoo.com",
     "password": "OVxSXjk1zaPf4kN",
     "name": "Ms. Grace Conroy",
-    "isAvailable": true,
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Corine_Rippin93@hotmail.com",
+    "password": "AwppM5whswIeCFb",
+    "name": "Cody Ruecker-Stoltenberg",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Caesar42@hotmail.com",
+    "password": "keq9uRMGZOuOO8a",
+    "name": "Homer Mitchell-Reichel",
+    "isAvailable": false,
+    "isRegistered": true
+  },
+  {
+    "email": "Peter.Rodriguez92@yahoo.com",
+    "password": "QE7bF1eF35dk23s",
+    "name": "Hattie Schmitt",
+    "isAvailable": false,
     "isRegistered": true
   }
 ]
