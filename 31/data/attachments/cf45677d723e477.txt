@@ -1,0 +1,14 @@
+api info => browser.newContext started
+api info <= browser.newContext succeeded
+api info => browserContext.newPage started
+api info <= browserContext.newPage succeeded
+api info => page.goto started
+api info <= page.goto succeeded
+api info => expect.toHaveURL started
+api info <= expect.toHaveURL succeeded
+api info => page.goto started
+api info <= page.goto succeeded
+api info => expect.toBeVisible started
+api info <= expect.toBeVisible succeeded
+api info => page.screenshot started
+api info <= page.screenshot succeeded
