@@ -70,6 +70,79 @@ test.describe('Product Page Test Suite', () => {
         await expect(checkoutPage.confirmItems).toBeVisible();
     });
 
+    test('Search Product with Empty Input', async () => {
+        await allure.step("Search for a product with empty input", async () => {
+            await productPage.searchProduct.fill('');
+            await productPage.searchButton.click();
+            await expect(productPage.searchedProduct).not.toBeVisible();
+        });
+    });
+
+    test('Search Product with Maximum Input Size', async () => {
+        await allure.step("Search for a product with maximum input size", async () => {
+            await productPage.searchProduct.fill('A'.repeat(255));
+            await productPage.searchButton.click();
+            await expect(productPage.searchedProduct).not.toBeVisible();
+        });
+    });
+
+    test('Search Product with Invalid Input', async () => {
+        await allure.step("Search for a product with invalid input", async () => {
+            await productPage.searchProduct.fill('InvalidProductName');
+            await productPage.searchButton.click();
+            await expect(productPage.searchedProduct).not.toBeVisible();
+        });
+    });
+
+    test('Search Product as Different User Roles', async ({page}) => {
+        // Assuming different user roles are implemented
+        // Search product as guest
+        await productPage.searchForProduct('Winter Top');
+        await expect(productPage.searchedProduct).toBeVisible();
+
+        // Search product as logged-in user
+        const user = await getPoolUser(page);
+        await page.goto('/login');
+        await loginPage.emailAddress.fill(user.email);
+        await loginPage.password.fill(user.password);
+        await loginPage.loginButton.click();
+        await expect(registerPage.logoutLink).toBeVisible();
+        await productPage.searchForProduct('Winter Top');
+        await expect(productPage.searchedProduct).toBeVisible();
+    });
+
+    test('Responsive Design: Search Product on Different Screen Sizes', async ({page}) => {
+        const viewports = [
+            { width: 1920, height: 1080 },
+            { width: 1366, height: 768 },
+            { width: 375, height: 667 },
+            { width: 414, height: 896 }
+        ];
+
+        for (const viewport of viewports) {
+            await page.setViewportSize(viewport);
+            await productPage.searchForProduct('Winter Top');
+            await expect(productPage.searchedProduct).toBeVisible();
+        }
+    });
+
+    test('Cross-Browser Compatibility: Search Product', async ({browser}) => {
+        const browsers = ['chromium', 'firefox', 'webkit'];
+
+        for (const browserType of browsers) {
+            const browserInstance = await browser[browserType].launch();
+            const context = await browserInstance.newContext();
+            const page = await context.newPage();
+            const productPage = new ProductPage(page);
+
+            await productPage.navigateToProductPage();
+            await productPage.searchForProduct('Winter Top');
+            await expect(productPage.searchedProduct).toBeVisible();
+
+            await browserInstance.close();
+        }
+    });
+
     test.afterEach(async ({ page }) => {
         await allure.attachment(
             "TestScreenshot.png",

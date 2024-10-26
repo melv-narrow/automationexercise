@@ -134,6 +134,92 @@ test.describe("Checkout Order Tests", () => {
         });
     });
 
+    test('Place Order with Empty Cart', async ({page}) => {
+        await checkoutPage.cart.click();
+        await expect(checkoutPage.shoppingCart).toBeVisible();
+        await expect(checkoutPage.page.getByText('Your cart is empty')).toBeVisible();
+    });
+
+    test('Place Order with Maximum Products', async ({page}) => {
+        for (let i = 0; i < 1000; i++) {
+            await checkoutPage.productOne.click();
+            await checkoutPage.continueShopping.click();
+        }
+        await checkoutPage.viewCart.click();
+        await expect(checkoutPage.shoppingCart).toBeVisible();
+        await checkoutPage.checkout.click();
+        await expect(checkoutPage.confirmAddress).toBeVisible();
+        await checkoutPage.productComment.fill(faker.lorem.paragraph());
+        await checkoutPage.placeOrder.click();
+        await checkoutPage.fillPaymentDetails();
+    });
+
+    test('Place Order with Invalid Product', async ({page}) => {
+        await page.goto('/product/invalid');
+        await expect(page.getByText('Product not found')).toBeVisible();
+    });
+
+    test('Place Order as Different User Roles', async ({page}) => {
+        // Assuming different user roles are implemented
+        // Place order as guest
+        await checkoutPage.addProductsToCartAndCheckoutNew();
+        await expect(checkoutPage.confirmAddress).toBeVisible();
+        await checkoutPage.productComment.fill(faker.lorem.paragraph());
+        await checkoutPage.placeOrder.click();
+        await checkoutPage.fillPaymentDetails();
+
+        // Place order as logged-in user
+        await checkoutPage.linkSignupLogin.click();
+        await loginPage.emailAddress.fill('user@example.com');
+        await loginPage.password.fill('password');
+        await loginPage.loginButton.click();
+        await checkoutPage.addProductsToCartAndCheckoutNew();
+        await expect(checkoutPage.confirmAddress).toBeVisible();
+        await checkoutPage.productComment.fill(faker.lorem.paragraph());
+        await checkoutPage.placeOrder.click();
+        await checkoutPage.fillPaymentDetails();
+    });
+
+    test('Responsive Design: Place Order on Different Screen Sizes', async ({page}) => {
+        const viewports = [
+            { width: 1920, height: 1080 },
+            { width: 1366, height: 768 },
+            { width: 375, height: 667 },
+            { width: 414, height: 896 }
+        ];
+
+        for (const viewport of viewports) {
+            await page.setViewportSize(viewport);
+            await checkoutPage.addProductsToCartAndCheckoutNew();
+            await expect(checkoutPage.confirmAddress).toBeVisible();
+            await checkoutPage.productComment.fill(faker.lorem.paragraph());
+            await checkoutPage.placeOrder.click();
+            await checkoutPage.fillPaymentDetails();
+        }
+    });
+
+    test('Cross-Browser Compatibility: Place Order', async ({browser}) => {
+        const browsers = ['chromium', 'firefox', 'webkit'];
+
+        for (const browserType of browsers) {
+            const browserInstance = await browser[browserType].launch();
+            const context = await browserInstance.newContext();
+            const page = await context.newPage();
+            const checkoutPage = new CheckoutPage(page);
+            const registerPage = new RegisterPage(page);
+            const loginPage = new LoginPage(page);
+
+            await checkoutPage.navigate();
+            await checkoutPage.addProductsToCartAndCheckoutNew();
+            await expect(checkoutPage.confirmAddress).toBeVisible();
+            await checkoutPage.productComment.fill(faker.lorem.paragraph());
+            await checkoutPage.placeOrder.click();
+            await checkoutPage.fillPaymentDetails();
+
+            await browserInstance.close();
+        }
+    });
+
     test.afterEach(async ({ page }) => {
         await allure.attachment("Test Screenshot", await page.screenshot({ fullPage: true }), "image/png");
     });

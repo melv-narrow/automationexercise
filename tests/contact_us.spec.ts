@@ -46,3 +46,125 @@ test.skip("Contact Us", async ({ page }) => {
         await expect(page).toHaveURL('/');
     });
 });
+
+test('Contact Us with Empty Inputs', async ({ page }) => {
+    await contactUsPage.contactUsLink.click();
+    await page.waitForLoadState('networkidle');
+    await contactUsPage.submitButton.click();
+    await expect(contactUsPage.successMessage).not.toBeVisible();
+});
+
+test('Contact Us with Maximum Input Sizes', async ({ page }) => {
+    await contactUsPage.contactUsLink.click();
+    await page.waitForLoadState('networkidle');
+    await contactUsPage.fillContactForm(
+        'A'.repeat(255),
+        'A'.repeat(255) + '@example.com',
+        'A'.repeat(255),
+        'A'.repeat(1000)
+    );
+    await contactUsPage.submitButton.click();
+    await page.waitForTimeout(6000);
+    await contactUsPage.alert();
+    await expect(contactUsPage.successMessage).toBeVisible();
+});
+
+test('Contact Us with Invalid Inputs', async ({ page }) => {
+    await contactUsPage.contactUsLink.click();
+    await page.waitForLoadState('networkidle');
+    await contactUsPage.fillContactForm(
+        'Invalid Name',
+        'invalid-email',
+        'Invalid Subject',
+        'Invalid Message'
+    );
+    await contactUsPage.submitButton.click();
+    await expect(contactUsPage.successMessage).not.toBeVisible();
+});
+
+test('Contact Us as Different User Roles', async ({ page }) => {
+    // Assuming different user roles are implemented
+    // Contact Us as guest
+    await contactUsPage.contactUsLink.click();
+    await page.waitForLoadState('networkidle');
+    await contactUsPage.fillContactForm(
+        faker.person.firstName(),
+        faker.internet.email(),
+        faker.lorem.sentence(),
+        faker.lorem.paragraph()
+    );
+    await contactUsPage.submitButton.click();
+    await page.waitForTimeout(6000);
+    await contactUsPage.alert();
+    await expect(contactUsPage.successMessage).toBeVisible();
+
+    // Contact Us as logged-in user
+    await page.goto('/login');
+    await page.fill('input[name="email"]', 'user@example.com');
+    await page.fill('input[name="password"]', 'password');
+    await page.click('button[type="submit"]');
+    await contactUsPage.contactUsLink.click();
+    await page.waitForLoadState('networkidle');
+    await contactUsPage.fillContactForm(
+        faker.person.firstName(),
+        faker.internet.email(),
+        faker.lorem.sentence(),
+        faker.lorem.paragraph()
+    );
+    await contactUsPage.submitButton.click();
+    await page.waitForTimeout(6000);
+    await contactUsPage.alert();
+    await expect(contactUsPage.successMessage).toBeVisible();
+});
+
+test('Responsive Design: Contact Us on Different Screen Sizes', async ({ page }) => {
+    const viewports = [
+        { width: 1920, height: 1080 },
+        { width: 1366, height: 768 },
+        { width: 375, height: 667 },
+        { width: 414, height: 896 }
+    ];
+
+    for (const viewport of viewports) {
+        await page.setViewportSize(viewport);
+        await contactUsPage.contactUsLink.click();
+        await page.waitForLoadState('networkidle');
+        await contactUsPage.fillContactForm(
+            faker.person.firstName(),
+            faker.internet.email(),
+            faker.lorem.sentence(),
+            faker.lorem.paragraph()
+        );
+        await contactUsPage.submitButton.click();
+        await page.waitForTimeout(6000);
+        await contactUsPage.alert();
+        await expect(contactUsPage.successMessage).toBeVisible();
+    }
+});
+
+test('Cross-Browser Compatibility: Contact Us', async ({ browser }) => {
+    const browsers = ['chromium', 'firefox', 'webkit'];
+
+    for (const browserType of browsers) {
+        const browserInstance = await browser[browserType].launch();
+        const context = await browserInstance.newContext();
+        const page = await context.newPage();
+        const contactUsPage = new ContactusPage(page);
+
+        await page.goto('/');
+        await contactUsPage.contactUsLink.click();
+        await page.waitForLoadState('networkidle');
+        await contactUsPage.fillContactForm(
+            faker.person.firstName(),
+            faker.internet.email(),
+            faker.lorem.sentence(),
+            faker.lorem.paragraph()
+        );
+        await contactUsPage.submitButton.click();
+        await page.waitForTimeout(6000);
+        await contactUsPage.alert();
+        await expect(contactUsPage.successMessage).toBeVisible();
+
+        await browserInstance.close();
+    }
+});

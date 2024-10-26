@@ -1,4 +1,4 @@
-import {Locator, Page} from "@playwright/test";
+import {Locator, Page, expect} from "@playwright/test";
 import path from "node:path";
 
 class ContactusPage {
@@ -21,7 +21,6 @@ class ContactusPage {
         this.emailAddress = page.getByPlaceholder('Email', { exact: true })
         this.subject = page.getByPlaceholder('Subject')
         this.message = page.getByPlaceholder('Your Message Here')
-        // this.submitButton = page.getByRole('button', { name: 'Submit' });
         this.submitButton = page.locator('//form[@id=\'contact-us-form\']//input[@name=\'submit\']')
         this.successMessage = page.locator('h2').filter({ hasText: 'Success! Your details have been submitted successfully.' });
         this.homeButton = page.getByText('Home');
@@ -44,6 +43,18 @@ class ContactusPage {
             console.log(dialog.message());
             await dialog.accept();
         });
+    }
+
+    async submitContactForm() {
+        await this.submitButton.click();
+        await this.page.waitForTimeout(6000);
+        await this.alert();
+        await expect(this.successMessage).toBeVisible();
+    }
+
+    async navigateToHome() {
+        await this.homeButton.click();
+        await expect(this.page).toHaveURL('/');
     }
 }
 
