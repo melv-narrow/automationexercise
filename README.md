@@ -63,13 +63,13 @@ npm run test:e2e -- --project=Chromium --workers=1 --reporter=line
 
 ## CI
 
-The blocking CI workflow runs:
+PR validation is handled by `Playwright Tests`, which runs on pull requests targeting `master` and executes:
 
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:e2e:ci`
 
-Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate master-only workflow generates and publishes Allure history to GitHub Pages after changes land on `master`.
+Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate master-only workflow, `Playwright Tests with Allure Report`, runs after changes land on `master` and publishes fresh Allure history to GitHub Pages.
 
 ## API Testing
 
