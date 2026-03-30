@@ -69,7 +69,7 @@ PR validation is handled by `Playwright Tests`, which runs on pull requests targ
 - `npm run typecheck`
 - `npm run test:e2e:ci`
 
-Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate master-only workflow, `Playwright Tests with Allure Report`, runs after changes land on `master` and publishes fresh Allure history to GitHub Pages.
+Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate master-only workflow, `Playwright Tests with Allure Report`, runs after changes land on `master` and once weekly on Mondays at 03:30 UTC to publish fresh Allure history to GitHub Pages.
 
 ## API Testing
 
