@@ -69,7 +69,7 @@ The blocking CI workflow runs:
 - `npm run typecheck`
 - `npm run test:e2e:ci`
 
-Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate workflow also generates and publishes Allure history.
+Artifacts include the Playwright HTML report, traces, screenshots on failure, and test results. A separate master-only workflow generates and publishes Allure history to GitHub Pages after changes land on `master`.
 
 ## API Testing
 
