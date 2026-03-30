@@ -1,140 +1,80 @@
-import { test, expect } from '@playwright/test';
-import CheckoutPage from "../pages/checkout.page";
-import RegisterPage from "../pages/register.page";
-import {getPoolUser, releasePoolUser, userDetails} from "../utils/userDetails";
-import {getUserDetails} from "../pages/getUserDetails";
-import {faker} from "@faker-js/faker";
-import {allure} from "allure-playwright";
-import LoginPage from "../pages/login.page";
-import dotenv from "dotenv";
-import { userPool } from '../utils/userPool';
-dotenv.config();
+import { faker } from '@faker-js/faker';
+import { allure } from 'allure-playwright';
+import CheckoutPage from '../pages/checkout.page';
+import LoginPage from '../pages/login.page';
+import RegisterPage from '../pages/register.page';
+import { expect, test } from './fixtures';
 
+test.describe('Checkout Order Tests', () => {
+  let checkoutPage: CheckoutPage;
+  let registerPage: RegisterPage;
+  let loginPage: LoginPage;
 
-test.describe("Checkout Order Tests", () => {
-    let checkoutPage: CheckoutPage;
-    let registerPage: RegisterPage;
-    let loginPage: LoginPage;
+  test.beforeEach(async ({ page }) => {
+    checkoutPage = new CheckoutPage(page);
+    registerPage = new RegisterPage(page);
+    loginPage = new LoginPage(page);
+    await checkoutPage.navigate();
+  });
 
-    test.beforeEach(async ({ page }) => {
-        checkoutPage = new CheckoutPage(page);
-        registerPage = new RegisterPage(page);
-        loginPage = new LoginPage(page);
-        await checkoutPage.navigate();
-        userPool.ensureMinimumUsers(5);
+  test('Place Order: Register while Checkout', async ({ ephemeralUser }) => {
+    await allure.step('Add products and start checkout', async () => {
+      await checkoutPage.addProductsToCartAndCheckout([1, 2]);
     });
 
-    test('Place Order: Register while Checkout', async ({page}) => {
-        userDetails();
-        const user = getUserDetails();
-        await checkoutPage.addProductsToCartAndCheckout();
-        await allure.step("Fill in the user details", async () => {
-            await registerPage.userSignup(faker.person.fullName(), user.email);
-        });
-        await allure.step("Fill in the account information", async () => {
-            await registerPage.mrRadioButton.check();
-            await registerPage.fillAccountInformation(
-                user.password,
-                faker.number.int({ min: 1, max: 30 }),
-                faker.number.int({ min: 1, max: 12 }),
-                faker.number.int({ min: 1900, max: 2023 }),
-                faker.person.firstName(),
-                faker.person.lastName(),
-                faker.company.name(),
-                faker.location.streetAddress(),
-                faker.location.state(),
-                faker.location.city(),
-                faker.location.zipCode(),
-                faker.phone.number()
-            );
-            await registerPage.randomCountry();
-        });
-        await allure.step("Create the user account", async () => {
-            await registerPage.createAccountButton.click();
-            await expect(registerPage.accountCreated).toBeVisible();
-            await registerPage.continueButton.click();
-            await expect(registerPage.logoutLink).toBeVisible();
-        });
-        await allure.step("Add products to cart and checkout", async () => {
-            await checkoutPage.viewCartAndCheckout();
-        });
-        await allure.step("Fill in payment details", async () => {
-            await checkoutPage.fillPaymentDetails();
-        });
-        await allure.step("Delete user account", async () => {
-            await checkoutPage.deleteUserAccount();
-        });
+    await allure.step('Register a new user during checkout', async () => {
+      await registerPage.registerAccount(ephemeralUser);
+      await expect(registerPage.accountCreated).toBeVisible();
+      await registerPage.continueButton.click();
+      await expect(registerPage.logoutLink).toBeVisible();
     });
 
-    test('Place Order: Register before Checkout', async ({page}) => {
-        userDetails();
-        const user = getUserDetails();
-        await checkoutPage.linkSignupLogin.click();
+    await allure.step('Return to cart and place the order', async () => {
+      await checkoutPage.viewCartAndCheckout(faker.lorem.paragraph());
+      await checkoutPage.fillPaymentDetails(ephemeralUser);
+      await checkoutPage.deleteUserAccount();
+    });
+  });
 
-        await allure.step("Fill in the user details", async () => {
-            await registerPage.userSignup(faker.person.fullName(), user.email);
-        });
-        await allure.step("Fill in the account information", async () => {
-            await registerPage.mrRadioButton.check();
-            await registerPage.fillAccountInformation(
-                user.password,
-                faker.number.int({ min: 1, max: 30 }),
-                faker.number.int({ min: 1, max: 12 }),
-                faker.number.int({ min: 1900, max: 2023 }),
-                faker.person.firstName(),
-                faker.person.lastName(),
-                faker.company.name(),
-                faker.location.streetAddress(),
-                faker.location.state(),
-                faker.location.city(),
-                faker.location.zipCode(),
-                faker.phone.number()
-            );
-            await registerPage.randomCountry();
-        });
-        await allure.step("Create the user account", async () => {
-            await registerPage.createAccountButton.click();
-            await expect(registerPage.accountCreated).toBeVisible();
-            await registerPage.continueButton.click();
-            await expect(registerPage.logoutLink).toBeVisible();
-        });
-
-        await allure.step("Add products to cart, checkout and place order", async () => {
-            await checkoutPage.addProductsToCartAndCheckoutNew();
-            await expect(checkoutPage.confirmAddress).toBeVisible();
-            await checkoutPage.productComment.fill(faker.lorem.paragraph());
-            await checkoutPage.placeOrder.click();
-        });
-        await allure.step("Fill in payment details and delete user account", async () => {
-            await checkoutPage.fillPaymentDetails();
-            await checkoutPage.deleteUserAccount();
-        });
+  test('Place Order: Register before Checkout', async ({ page, ephemeralUser }) => {
+    await allure.step('Register before adding items to the cart', async () => {
+      await registerPage.navigate();
+      await registerPage.registerAccount(ephemeralUser);
+      await expect(registerPage.accountCreated).toBeVisible();
+      await registerPage.continueButton.click();
+      await expect(registerPage.logoutLink).toBeVisible();
     });
 
-    test('Place Order: Login before Checkout', async ({page}) => {
-        const user = await getPoolUser(page);
-        
-        // Navigate directly to the login page
-        await page.goto('/login');
+    await allure.step('Add products to cart and complete checkout', async () => {
+      await page.goto('/');
+      await checkoutPage.addProductsToCartAndCheckoutNew([1, 2]);
+      await expect(checkoutPage.confirmAddress).toBeVisible();
+      await checkoutPage.leaveOrderComment();
+      await checkoutPage.placeOrder.click();
+      await checkoutPage.fillPaymentDetails(ephemeralUser);
+      await checkoutPage.deleteUserAccount();
+    });
+  });
 
-        await allure.step("Verify user is logged in", async () => {
-            await expect(registerPage.logoutLink).toBeVisible();
-        });
-        await allure.step("Add products to cart and checkout", async () => {
-            await checkoutPage.addProductsToCartAndCheckoutNew();
-        });
-        await allure.step("Confirm Details and Place order", async () => {
-            await expect(checkoutPage.confirmAddress).toBeVisible();
-            await checkoutPage.productComment.fill(faker.lorem.paragraph());
-            await checkoutPage.placeOrder.click();
-        });
-        await allure.step("Fill in payment details and delete user account", async () => {
-            await checkoutPage.fillPaymentDetails();
-            releasePoolUser(user.email);
-        });
+  test('Place Order: Login before Checkout', async ({ page, registeredUser }) => {
+    await allure.step('Login with a pre-registered user', async () => {
+      await page.goto('/login');
+      await loginPage.login(registeredUser);
+      await expect(registerPage.logoutLink).toBeVisible();
     });
 
-    test.afterEach(async ({ page }) => {
-        await allure.attachment("Test Screenshot", await page.screenshot({ fullPage: true }), "image/png");
+    await allure.step('Add products, checkout, and finish payment', async () => {
+      await page.goto('/');
+      await checkoutPage.addProductsToCartAndCheckoutNew([1, 2]);
+      await expect(checkoutPage.confirmAddress).toBeVisible();
+      await checkoutPage.leaveOrderComment();
+      await checkoutPage.placeOrder.click();
+      await checkoutPage.fillPaymentDetails(registeredUser);
+      await checkoutPage.deleteUserAccount();
     });
+  });
+
+  test.afterEach(async ({ page }) => {
+    await allure.attachment('Test Screenshot', await page.screenshot({ fullPage: true }), 'image/png');
+  });
 });

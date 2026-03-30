@@ -1,86 +1,77 @@
-import {Page, Locator, expect} from "@playwright/test";
-import CheckoutPage from "../pages/checkout.page";
+import { expect, Locator, Page } from '@playwright/test';
 
 class CartproductPage {
-    page: Page;
-    checkoutPage: CheckoutPage;
-    linkProducts: Locator;
-    addProductOne: Locator;
-    addProductTwo: Locator;
-    productOne: Locator;
-    productTwo: Locator;
-    productOnePrice: Locator;
-    productTwoPrice: Locator;
-    productOneQuantity: Locator
-    productTwoQuantity: Locator
-    productOneTotal: Locator
-    productTwoTotal: Locator
-    singleProduct: Locator;
-    productInformation: Locator;
-    productQuantity: Locator;
-    addCart: Locator;
-    confirmItem: Locator;
-    emptyCart: Locator;
-    winterTop: Locator;
+  page: Page;
+  linkProducts: Locator;
+  cartInfo: Locator;
+  emptyCart: Locator;
+  cartModal: Locator;
+  continueShoppingButton: Locator;
+  modalViewCartLink: Locator;
 
-    constructor(page: Page) {
-        this.page = page;
-        this.checkoutPage = new CheckoutPage(page);
-        this.linkProducts = page.getByRole("link", {name: " Products"})
-        this.addProductOne = page.locator("html > body > section:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(2) > div > div:nth-of-type(2) > div > div:nth-of-type(1) > div:nth-of-type(1) > a")
-        this.addProductTwo = page.locator("html > body > section:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(2) > div > div:nth-of-type(3) > div > div:nth-of-type(1) > div:nth-of-type(1) > a")
-        this.productOne = page.getByRole("row", {name: "Product Image Blue Top Women > Tops Rs. 500 1 Rs. 500 "})
-        this.productTwo = page.getByRole("row", {name: "Product Image Men Tshirt Men > Tshirts Rs. 400 1 Rs. 400 "})
-        this.productOnePrice = page.locator("html > body > section > div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(1) > td:nth-of-type(3) > p")
-        this.productTwoPrice = page.locator("html > body > section > div > div:nth-of-type(2) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(3) > p")
-        this.productOneQuantity = page.locator('#product-1').getByRole("cell", {name: "1"})
-        this.productTwoQuantity = page.locator('#product-2').getByRole("cell", {name: "1"})
-        this.productOneTotal = page.locator('#product-1').getByRole("cell", {name: "Rs. 500"}).first()
-        this.productTwoTotal = page.locator('#product-2').getByRole("cell", {name: "Rs. 400"}).first()
-        this.singleProduct = page.locator("html > body > section:nth-of-type(2) > div:nth-of-type(1) > div > div:nth-of-type(2) > div > div:nth-of-type(4) > div > div:nth-of-type(2) > ul > li > a")
-        this.productInformation = page.locator("div[class='product-information']")
-        this.productQuantity = page.locator('#quantity')
-        this.addCart = page.locator("button[class$='cart']")
-        this.confirmItem = page.locator('#cart_info')
-        this.emptyCart = page.locator('#empty_cart')
-        this.winterTop = page.getByText('Add to cart').first()
-        // this.winterTop = page.locator('div:nth-child(7) > .product-image-wrapper > .single-products > .product-overlay > .overlay-content > .btn')
-    }
-    
-    async addProductToCart() {
-        await this.linkProducts.click();
-        await this.addProductOne.click();
-        await this.checkoutPage.continueShopping.click();
-        await this.addProductTwo.click();
-        await this.checkoutPage.viewCart.click();
+  constructor(page: Page) {
+    this.page = page;
+    this.linkProducts = page.locator("a[href='/products']");
+    this.cartInfo = page.locator('#cart_info');
+    this.emptyCart = page.getByText('Cart is empty! Click');
+    this.cartModal = page.locator('#cartModal');
+    this.continueShoppingButton = page.locator('#cartModal button.close-modal');
+    this.modalViewCartLink = page.locator('#cartModal a[href="/view_cart"]');
+  }
+
+  private productCardById(productId: number) {
+    return this.page
+      .locator('.features_items .product-image-wrapper')
+      .filter({ has: this.page.locator(`a[href='/product_details/${productId}']`) })
+      .first();
+  }
+
+  private cartRow(productId: number) {
+    return this.page.locator(`#product-${productId}`);
+  }
+
+  async addProductsToCart(productIds: number[]) {
+    await this.page.goto('/products');
+
+    for (const [index, productId] of productIds.entries()) {
+      const card = this.productCardById(productId);
+      await card.scrollIntoViewIfNeeded();
+      await card.locator('.productinfo a.add-to-cart').click();
+      await expect(this.cartModal).toBeVisible();
+
+      if (index < productIds.length - 1) {
+        await this.continueShoppingButton.click();
+        await expect(this.cartModal).toBeHidden();
+      }
     }
 
-    async verifyProductsInCart() {
-        await expect(this.productOne).toBeVisible();
-        await expect(this.productTwo).toBeVisible();
-        await expect(this.productOnePrice).toBeVisible();
-        await expect(this.productTwoPrice).toBeVisible();
-        await expect(this.productOneQuantity).toBeVisible();
-        await expect(this.productTwoQuantity).toBeVisible();
-        await expect(this.productOneTotal).toBeVisible();
-        await expect(this.productTwoTotal).toBeVisible();
-    }
-    
-    async addSingleProductToCart(quantity: string) {
-        await this.singleProduct.click();
-        await expect(this.productInformation).toBeVisible();
-        await this.productQuantity.fill(quantity);
-        await this.addCart.click();
-        await this.checkoutPage.viewCart.click();
-        await expect(this.confirmItem).toBeVisible();
-        await expect(this.page.getByRole("cell", {name: quantity, exact: true})).toBeVisible();
-    }
-    
-    async removeProductsFromCart(productId: string) {
-        await this.addProductOne.click();
-        await this.checkoutPage.viewCart.click();
-        await expect(this.checkoutPage.shoppingCart).toBeVisible();
-        await this.page.locator(`tr#product-${productId} .cart_delete a.cart_quantity_delete`).click();
-        await expect(this.emptyCart).toBeVisible();
-    }
-} export default CartproductPage;
+    await this.modalViewCartLink.click();
+  }
+
+  async verifyProductsInCart() {
+    await expect(this.cartRow(1)).toContainText('Blue Top');
+    await expect(this.cartRow(1)).toContainText('Rs. 500');
+    await expect(this.cartRow(1)).toContainText('1');
+    await expect(this.cartRow(2)).toContainText('Men Tshirt');
+    await expect(this.cartRow(2)).toContainText('Rs. 400');
+    await expect(this.cartRow(2)).toContainText('1');
+  }
+
+  async addSingleProductToCart(productId: number, quantity: string) {
+    await this.page.goto(`/product_details/${productId}`);
+    await expect(this.page.locator('.product-information')).toBeVisible();
+    await this.page.locator('#quantity').fill(quantity);
+    await this.page.getByRole('button', { name: /Add to cart/i }).click();
+    await this.modalViewCartLink.click();
+    await expect(this.cartInfo).toBeVisible();
+    await expect(this.cartRow(productId).getByRole('cell', { name: quantity, exact: true })).toBeVisible();
+  }
+
+  async removeProductsFromCart(productId: number) {
+    await this.addProductsToCart([productId]);
+    await this.cartRow(productId).locator('.cart_quantity_delete').click();
+    await expect(this.emptyCart).toBeVisible();
+  }
+}
+
+export default CartproductPage;
